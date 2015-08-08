@@ -8,8 +8,8 @@ RUN apt-get -y install git
 RUN apt-get -y install cmake ninja-build scons
 RUN apt-get -y install gcc-4.9 g++-4.9 clang-3.4
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
-RUN apt-get install unzip zip
-RUN apt-get -y install zlib1g-dev
+RUN apt-get -y install unzip zip bzip2 libbz2-dev zlib1g-dev
+RUN apt-get -y install libicu-dev python-dev texinfo
 
 RUN \
   echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
@@ -22,3 +22,11 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 RUN cd / && git clone https://github.com/google/bazel.git
 RUN cd /bazel && ./compile.sh
 ENV PATH "$PATH:/bazel/output"
+RUN mkdir /downloads
+RUN cd downloads \
+	&& wget -O boost_1_58_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.gz/download \
+	&& tar xzvf boost_1_58_0.tar.gz \
+	&& cd boost_1_58_0 \
+	&& ./bootstrap.sh --prefix=/usr \
+	&& ./b2 install --with=all
+RUN rm -rf /downloads
